@@ -137,7 +137,7 @@ export default function GaganPortfolio() {
   const projects = [
     {
       title: "Chess Multiplayer Game",
-      description: "A real-time multiplayer chess platform with AI integration, featuring seamless gameplay and responsive design.",
+      description: "A real-time multiplayer chess platform, featuring seamless gameplay and responsive design.",
       stack: ["Python", "FastAPI", "WebSockets", "React", "TypeScript", "Stockfish AI"],
       image: "https://res.cloudinary.com/dsqjkanzd/image/upload/v1747120827/chess_qivann.png",
       Github: "https://github.com/meinhoongagan/Chess"
@@ -173,7 +173,7 @@ export default function GaganPortfolio() {
     {
       title: "Appointment App",
       description: "An in-progress appointment booking system with separate backend and frontend, designed for efficient scheduling and user management.",
-      stack: ["Node.js", "Express", "MongoDB", "React", "TypeScript"],
+      stack: ["Go", "Fiber", "GORM", "React", "TypeScript"],
       image: "/api/placeholder/400/300",
       Github: "https://github.com/meinhoongagan/Appointment-App"
     }
