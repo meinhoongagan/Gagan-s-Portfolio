@@ -1,5 +1,14 @@
-import React, { useRef } from "react";
-import { motion, useReducedMotion, useScroll, useSpring } from "motion/react";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useMotionValue,
+  useInView,
+  animate,
+} from "motion/react";
 
 /**
  * Fades + slides an element in once it scrolls into view.
@@ -122,7 +131,7 @@ export function ScrollProgressBar() {
 
   return (
     <motion.div
-      className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 to-fuchsia-500 origin-left z-[60]"
+      className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-accent to-plum origin-left z-[60]"
       style={{ scaleX }}
     />
   );
@@ -133,3 +142,125 @@ export const tapScale = {
   whileHover: { scale: 1.03 },
   whileTap: { scale: 0.97 },
 };
+
+/**
+ * Pulls its children toward the cursor within a small radius, spring-back on
+ * leave — the "magnetic button" feel. No-op wrapper under reduced motion.
+ */
+export function Magnetic({ children, strength = 0.35, className = "" }) {
+  const ref = useRef(null);
+  const shouldReduceMotion = useReducedMotion();
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const springX = useSpring(x, { stiffness: 200, damping: 15, mass: 0.4 });
+  const springY = useSpring(y, { stiffness: 200, damping: 15, mass: 0.4 });
+
+  if (shouldReduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
+  const handleMove = (e) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    x.set((e.clientX - (rect.left + rect.width / 2)) * strength);
+    y.set((e.clientY - (rect.top + rect.height / 2)) * strength);
+  };
+
+  const handleLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+      style={{ x: springX, y: springY }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/**
+ * Animates a number from 0 to `value` once scrolled into view. Pass the
+ * qualifier (e.g. "% less inference cost") as `suffix` so the count never
+ * loses its meaning — this renders the digits, not the claim.
+ */
+export function CountUp({ value, suffix = "", prefix = "", duration = 1.4, className = "" }) {
+  const ref = useRef(null);
+  const shouldReduceMotion = useReducedMotion();
+  const isInView = useInView(ref, { once: true, margin: "-80px" });
+  const [display, setDisplay] = useState(shouldReduceMotion ? value : 0);
+
+  useEffect(() => {
+    if (!isInView) return;
+    if (shouldReduceMotion) {
+      setDisplay(value);
+      return;
+    }
+    const controls = animate(0, value, {
+      duration,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: (v) => setDisplay(Math.round(v)),
+    });
+    return () => controls.stop();
+  }, [isInView, value, duration, shouldReduceMotion]);
+
+  return (
+    <span ref={ref} className={className}>
+      {prefix}
+      {display}
+      {suffix}
+    </span>
+  );
+}
+
+/**
+ * Crossfades through a list of words on an interval. Shows only the first
+ * word, statically, under reduced motion.
+ */
+export function RotatingWords({ words, interval = 2600, className = "", style }) {
+  const shouldReduceMotion = useReducedMotion();
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (shouldReduceMotion || words.length <= 1) return;
+    const id = setInterval(() => {
+      setIndex((i) => (i + 1) % words.length);
+    }, interval);
+    return () => clearInterval(id);
+  }, [shouldReduceMotion, words.length, interval]);
+
+  if (shouldReduceMotion) {
+    return (
+      <span className={className} style={style}>
+        {words[0]}
+      </span>
+    );
+  }
+
+  // className/style land on the inner element that actually holds the text
+  // glyphs — a gradient text-clip effect only clips against an element's own
+  // text, so it has to sit on the same node as the word, not the wrapper.
+  return (
+    <span className="relative inline-grid">
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={words[index]}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className={`col-start-1 row-start-1 whitespace-nowrap ${className}`}
+          style={style}
+        >
+          {words[index]}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}

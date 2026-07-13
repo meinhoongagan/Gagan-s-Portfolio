@@ -1,1 +1,192 @@
 @import "tailwindcss";
+@import "@fontsource-variable/space-grotesk";
+@import "@fontsource-variable/manrope";
+
+@theme {
+  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* Near-black surfaces with a faint cool undertone, not flat neutral */
+  --color-surface-0: #08080b;
+  --color-surface-1: #0e0e13;
+  --color-surface-2: #15151c;
+  --color-line: #ffffff14;
+  --color-line-strong: #ffffff26;
+
+  --color-ink: #f2f1f6;
+  --color-ink-soft: #c7c4d3;
+  --color-ink-muted: #9a97a8;
+  --color-ink-faint: #5f5c6e;
+
+  --color-accent: #8b5cf6;
+  --color-accent-soft: #a78bfa;
+  --color-accent-strong: #7c3aed;
+  --color-accent-dim: #8b5cf633;
+  --color-accent-glow: #a78bfa4d;
+  --color-plum: #d946ef;
+
+  /* Two-tone gradient used for headline accents, gradient buttons, and text-clip effects */
+  --color-grad-from: #c4b5fd;
+  --color-grad-to: #818cf8;
+
+  --ease-luxe: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  * {
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+
+  html {
+    background: var(--color-surface-0);
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--color-surface-0);
+    color: var(--color-ink);
+  }
+
+  ::selection {
+    background: var(--color-accent-dim);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent-soft);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    border-radius: 999px;
+    border: 2px solid var(--color-surface-0);
+  }
+}
+
+/* Lenis smooth-scroll requires standard scroll behavior off html so its own
+   rAF loop drives position; it adds/removes these classes itself. */
+html.lenis {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Film-grain overlay: a tiled SVG turbulence data-uri, animated by nudging
+   its background-position so the noise flickers instead of sitting static. */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain-overlay {
+    animation: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (pointer: fine) {
+  .cursor-none-fine,
+  .cursor-none-fine * {
+    cursor: none !important;
+  }
+}
+
+@layer utilities {
+  @keyframes drift-a {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(-4%, 6%) scale(1.08);
+    }
+  }
+  @keyframes drift-b {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(6%, -5%) scale(1.05);
+    }
+  }
+  @keyframes float-y {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-14px);
+    }
+  }
+  @keyframes float-y2 {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(18px);
+    }
+  }
+  @keyframes spin-slow {
+    from {
+      transform: rotate(18deg);
+    }
+    to {
+      transform: rotate(378deg);
+    }
+  }
+  @keyframes pulse-glow {
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 0.9;
+    }
+  }
+  .animate-drift-a {
+    animation: drift-a 26s var(--ease-luxe) infinite;
+  }
+  .animate-drift-b {
+    animation: drift-b 32s var(--ease-luxe) infinite;
+  }
+  .animate-float-y {
+    animation: float-y 7s ease-in-out infinite;
+  }
+  .animate-float-y2 {
+    animation: float-y2 8s ease-in-out infinite;
+  }
+  .animate-spin-slow {
+    animation: spin-slow 40s linear infinite;
+  }
+  .animate-pulse-glow {
+    animation: pulse-glow 6s ease-in-out infinite;
+  }
+}
