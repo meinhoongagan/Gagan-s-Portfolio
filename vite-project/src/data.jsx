@@ -119,7 +119,7 @@ export const educationData = [
   {
     degree: 'B.Tech in Computer Science',
     institution: 'University Institute of Technology, Rajiv Gandhi Proudyogiki Vishwavidyalaya, Bhopal',
-    duration: 'November 2022 - July 2026 (Expected)',
+    duration: 'November 2022 - May 2026',
     cgpa: '7.3',
     coursework: ['Data Structures', 'Algorithms', 'Databases', 'Web Development'],
     icon: <GraduationCap size={24} />,
